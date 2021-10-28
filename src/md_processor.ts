@@ -5,30 +5,36 @@ import {
 } from 'obsidian';
 
 
-const classListener = new MutationObserver( ( mutations ) => {
-	mutations.forEach( ( mutation ) => {
-		if ( !mutation.target.matches( 'span.image-embed' ) ) {
-			return;
-		}
+export function captionObserver() {
 
-		const caption_text = mutation.target.getAttribute( 'alt' );
-		if ( caption_text === mutation.target.getAttribute( 'src' ) ) {
-			// not user defined
-			return;
-		}
+	return new MutationObserver( ( mutations ) => {
+		mutations.forEach( ( mutation ) => {
+			if ( !mutation.target.matches( 'span.image-embed' ) ) {
+				return;
+			}
 
-		if ( mutation.target.querySelector( 'figcaption.obsidian-image-caption' ) ) {
-			// caption already added
-			return;
-		}
+			const caption_text = mutation.target.getAttribute( 'alt' );
+			if ( caption_text === mutation.target.getAttribute( 'src' ) ) {
+				// default caption, skip
+				return;
+			}
 
-		addCaption( mutation.target, caption_text );
+			if ( mutation.target.querySelector( 'figcaption.obsidian-image-caption' ) ) {
+				// caption already added
+				return;
+			}
 
-	} );  // end forEach
-} );
+			addCaption( mutation.target, caption_text );
+			updateFigureIndices();
+		} );  // end forEach
+	} );
+}
 
 
-function addCaption( target: HTMLElement, caption_text: string ): HTMLElement {
+function addCaption(
+	target: HTMLElement,
+	caption_text: string,
+): HTMLElement {
 	const caption = document.createElement( 'figcaption' );
 	caption.addClass( 'obsidian-image-caption' );
 	caption.innerText = caption_text;
@@ -38,19 +44,39 @@ function addCaption( target: HTMLElement, caption_text: string ): HTMLElement {
 }
 
 
-export default function processImageCaption (
-	el: HTMLElement,
-	ctx: MarkdownPostProcessorContext
-): void {
-
-	el.querySelectorAll( 'span.internal-embed' ).forEach(
-		( container: HTMLElement ) => {
-			// must listen for class changes because images
-			// may be loaded after this run
-			classListener.observe(
-				container,
-				{ attributes: true, attributesFilter: [ 'class' ] }
+function updateFigureIndices() {
+	document.querySelectorAll( 'div.workspace-leaf' ).forEach(
+		( container : HTMLElement ) => {
+			let index = 1;
+			container.querySelectorAll( 'figcaption.obsidian-image-caption' ).forEach(
+				( el: HTMLElement ) => {
+					el.dataset.image_caption_index = index;
+					index += 1;
+				}
 			);
 		}
 	);
+}
+
+
+export function processImageCaption(
+	observer: MutationObserver
+): ( el: HTMLElement, ctx: MarkdownPostProcessorContext ) => void {
+
+	return function (
+		el: HTMLElement,
+		ctx: MarkdownPostProcessorContext
+	): void {
+
+		el.querySelectorAll( 'span.internal-embed' ).forEach(
+			( container: HTMLElement ) => {
+				// must listen for class changes because images
+				// may be loaded after this run
+				observer.observe(
+					container,
+					{ attributes: true, attributesFilter: [ 'class' ] }
+				);
+			}
+		);
+	};
 }

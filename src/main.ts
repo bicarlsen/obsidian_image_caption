@@ -5,13 +5,20 @@ import {
 	Setting
 } from 'obsidian';
 
-import processImageCaption from './md_processor';
+import {
+	captionObserver,
+	processImageCaption
+} from './md_processor';
 
 
 interface ImageCaptionSettings {
+	css: string;
+	label: string;
 }
 
 const DEFAULT_SETTINGS: ImageCaptionSettings = {
+	css: '',
+	label: ''
 }
 
 export default class ImageCaptionPlugin extends Plugin {
@@ -20,14 +27,15 @@ export default class ImageCaptionPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
-		this.registerMarkdownPostProcessor( processImageCaption );
+		this.caption_observer = captionObserver();
+		this.registerMarkdownPostProcessor( processImageCaption( this.caption_observer ) );
 
-		// this.addSettingTab( new ImageCaptionSettingTab( this.app, this ) );
-
+		this.addStylesheet();
+		this.addSettingTab( new ImageCaptionSettingTab( this.app, this ) );
 	}
 
 	onunload() {
-
+		this.caption_observer.disconnect();
 	}
 
 	async loadSettings() {
@@ -36,6 +44,26 @@ export default class ImageCaptionPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData( this.settings );
+	}
+
+	addStylesheet() {
+		this.stylesheet = document.createElement( 'style' );
+		this.updateStylesheet();
+		document.head.append( this.stylesheet );
+	}
+
+	updateStylesheet() {
+		const base = 'figcaption.obsidian-image-caption';
+		const css = this.settings.css ? `${base} { ${this.settings.css} }` : '';
+
+		let label = this.settings.label;
+		if ( label ) {
+			const number_pattern = /(?<!\\)#/;
+			label = label.replace( number_pattern, "' attr(data-image_caption_index) '" );  // inner quotes used to kill string and insert attr. + between strings breaks it.
+			label = label ? `${base}::before { content: '${label} ' }` : '';  // additional space intentional
+		}
+
+		this.stylesheet.innerText = `${css} ${label}`;
 	}
 }
 
@@ -49,22 +77,33 @@ class ImageCaptionSettingTab extends PluginSettingTab {
 	}
 
 	display(): void {
-		// let { containerEl } = this;
+		let { containerEl } = this;
+		containerEl.empty();
 
-		// containerEl.empty();
+		new Setting( containerEl )
+			.setName( 'Label' )
+			.setDesc( 'Prepend this text before each captioned image.' )
+			.addText( ( text ) => text
+				.setPlaceholder( 'Label' )
+				.setValue( this.plugin.settings.label )
+				.onChange( async ( value ) => {
+					this.plugin.settings.label = value;
+					await this.plugin.saveSettings();
+					this.plugin.updateStylesheet();
+				} )
+			);
 
-		// containerEl.createEl('h2', {text: 'Settings for my awesome plugin.'});
-
-		// new Setting(containerEl)
-		// 	.setName('Setting #1')
-		// 	.setDesc('It\'s a secret')
-		// 	.addText(text => text
-		// 		.setPlaceholder('Enter your secret')
-		// 		.setValue(this.plugin.settings.mySetting)
-		// 		.onChange(async (value) => {
-		// 			console.log('Secret: ' + value);
-		// 			this.plugin.settings.mySetting = value;
-		// 			await this.plugin.saveSettings();
-		// 		}));
+		new Setting( containerEl )
+			.setName( 'CSS' )
+			.setDesc( 'Custom css styling' )
+			.addTextArea( ( text ) => text
+				.setPlaceholder('Enter your CSS' )
+				.setValue( this.plugin.settings.css )
+				.onChange( async ( value ) => {
+					this.plugin.settings.css = value.trim();
+					await this.plugin.saveSettings();
+					this.plugin.updateStylesheet();
+				} )
+			);
 	}
 }
