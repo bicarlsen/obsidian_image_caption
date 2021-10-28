@@ -50,7 +50,7 @@ function updateFigureIndices() {
 			let index = 1;
 			container.querySelectorAll( 'figcaption.obsidian-image-caption' ).forEach(
 				( el: HTMLElement ) => {
-					el.dataset.image_caption_index = index;
+					el.dataset.imageCaptionIndex = index;
 					index += 1;
 				}
 			);

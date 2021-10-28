@@ -14,11 +14,13 @@ e.g.
 ```
 
 
-## Coming soon
+## Settings
 
-+ Custom styling
-+ Automatic caption labels.
-  + e.g. Figure 1, Figure 2, etc.
++ **Label:** Text that prepends all captions.<br/>
+For automatic numbering use '#'. If a '#' character is meant to be output, escape it with a backslash ('\'), i.e. '\\#'. Backslashes must also be escaped to be output, i.e.'\\\\'.
+
++ **CSS:** Apply custom CSS styling to the image captions.<br/>
+Captions are indexed from 1 using the 'data-image-caption-index' attribute for styling based on figure number.
 
 
 ## Known issues

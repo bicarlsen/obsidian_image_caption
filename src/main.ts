@@ -59,7 +59,8 @@ export default class ImageCaptionPlugin extends Plugin {
 		let label = this.settings.label;
 		if ( label ) {
 			const number_pattern = /(?<!\\)#/;
-			label = label.replace( number_pattern, "' attr(data-image_caption_index) '" );  // inner quotes used to kill string and insert attr. + between strings breaks it.
+			label = label.replace( number_pattern, "' attr(data-image-caption-index) '" );  // inner quotes used to kill string and insert attr. + between strings breaks it.
+			label = label.replace( '\\#', '#' );
 			label = label ? `${base}::before { content: '${label} ' }` : '';  // additional space intentional
 		}
 
@@ -82,7 +83,7 @@ class ImageCaptionSettingTab extends PluginSettingTab {
 
 		new Setting( containerEl )
 			.setName( 'Label' )
-			.setDesc( 'Prepend this text before each captioned image.' )
+			.setDesc( 'Prepend this text before each caption.' )
 			.addText( ( text ) => text
 				.setPlaceholder( 'Label' )
 				.setValue( this.plugin.settings.label )
@@ -95,7 +96,7 @@ class ImageCaptionSettingTab extends PluginSettingTab {
 
 		new Setting( containerEl )
 			.setName( 'CSS' )
-			.setDesc( 'Custom css styling' )
+			.setDesc( 'Custom CSS styling for captions.' )
 			.addTextArea( ( text ) => text
 				.setPlaceholder('Enter your CSS' )
 				.setValue( this.plugin.settings.css )
