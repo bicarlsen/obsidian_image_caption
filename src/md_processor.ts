@@ -11,25 +11,26 @@ export function captionObserver( plugin: Plugin ) {
 	return new MutationObserver( ( mutations, observer ) => {
 		for ( const mutation of mutations ) {
 			if ( !mutation.target.matches( 'span.image-embed' ) ) {
-				return;
+				continue;
 			}
 
 			const caption_text = mutation.target.getAttribute( 'alt' );
 			if ( caption_text === mutation.target.getAttribute( 'src' ) ) {
 				// default caption, skip
-				return;
+				continue;
 			}
 
 			if ( mutation.target.querySelector( plugin.caption_selector ) ) {
 				// caption already added
-				return;
+				continue;
 			}
 
 			addCaption( mutation.target, caption_text, plugin );
-			updateFigureIndices( plugin );
 		}  // end for..of
 
+		updateFigureIndices( plugin );
 		plugin.removeObserver( observer );
+
 	} );
 }
 
