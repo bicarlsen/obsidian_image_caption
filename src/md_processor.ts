@@ -5,6 +5,8 @@ import {
 	MarkdownRenderChild
 } from 'obsidian';
 
+import ImageCaptionPlugin from './main';
+
 
 export function captionObserver( plugin: Plugin ) {
 
@@ -20,7 +22,7 @@ export function captionObserver( plugin: Plugin ) {
 				continue;
 			}
 
-			if ( mutation.target.querySelector( plugin.caption_selector ) ) {
+			if ( mutation.target.querySelector( ImageCaptionPlugin.caption_selector ) ) {
 				// caption already added
 				continue;
 			}
@@ -40,8 +42,8 @@ function addCaption(
 	caption_text: string,
 	plugin: Plugin
 ): HTMLElement {
-	const caption = document.createElement( plugin.caption_tag );
-	caption.addClass( plugin.caption_class );
+	const caption = document.createElement( ImageCaptionPlugin.caption_tag );
+	caption.addClass( ImageCaptionPlugin.caption_class );
 	caption.innerText = caption_text;
 	target.appendChild( caption );
 
@@ -53,7 +55,7 @@ function updateFigureIndices( plugin: Plugin ) {
 	document.querySelectorAll( 'div.workspace-leaf' ).forEach(
 		( container : HTMLElement ) => {
 			let index = 1;
-			container.querySelectorAll( plugin.caption_selector ).forEach(
+			container.querySelectorAll( ImageCaptionPlugin.caption_selector ).forEach(
 				( el: HTMLElement ) => {
 					el.dataset.imageCaptionIndex = index;
 					index += 1;

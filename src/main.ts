@@ -24,11 +24,13 @@ const DEFAULT_SETTINGS: ImageCaptionSettings = {
 export default class ImageCaptionPlugin extends Plugin {
 	settings: ImageCaptionSettings;
 
+	static caption_tag: string = 'figcaption';
+	static caption_class: string = 'obsidian-image-caption';
+	static caption_selector: string = `${ImageCaptionPlugin.caption_tag}.${ImageCaptionPlugin.caption_class}`;
+
+
 	async onload() {
 		await this.loadSettings();
-		this.caption_tag = 'figcaption';
-		this.caption_class = 'obsidian-image-caption';
-		this.caption_selector = `${this.caption_tag}.${this.caption_class}`;
 
 		this.caption_observers = [];
 		this.registerMarkdownPostProcessor( processImageCaption( this ) );
@@ -77,21 +79,21 @@ export default class ImageCaptionPlugin extends Plugin {
 	}
 
 	updateStylesheet() {
-		const css = this.settings.css ? `${this.caption_selector} { ${this.settings.css} }` : '';
+		const css = this.settings.css ? `${ImageCaptionPlugin.caption_selector} { ${this.settings.css} }` : '';
 
 		let label = this.settings.label;
 		if ( label ) {
 			const number_pattern = /(?<!\\)#/g;
 			label = label.replace( number_pattern, "' attr(data-image-caption-index) '" );  // inner quotes used to kill string and insert attr. + between strings breaks it.
 			label = label.replace( '\\#', '#' );
-			label = `${this.caption_selector}::before { content: '${label} ' }`;  // additional space in content intentional
+			label = `${ImageCaptionPlugin.caption_selector}::before { content: '${label} ' }`;  // additional space in content intentional
 		}
 
 		this.stylesheet.innerText = `${css} ${label}`;
 	}
 
 	removeCaptions() {
-		for ( const caption of document.querySelectorAll( this.caption_selector ) ) {
+		for ( const caption of document.querySelectorAll( ImageCaptionPlugin.caption_selector ) ) {
 			caption.remove();
 		}
 	}
