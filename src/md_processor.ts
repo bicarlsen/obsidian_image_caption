@@ -27,10 +27,10 @@ export function captionObserver( plugin: Plugin ) {
 				continue;
 			}
 
-			addCaption( mutation.target, caption_text, plugin );
+			addCaption( mutation.target, caption_text );
 		}  // end for..of
 
-		updateFigureIndices( plugin );
+		updateFigureIndices();
 		plugin.removeObserver( observer );
 
 	} );
@@ -39,8 +39,7 @@ export function captionObserver( plugin: Plugin ) {
 
 function addCaption(
 	target: HTMLElement,
-	caption_text: string,
-	plugin: Plugin
+	caption_text: string
 ): HTMLElement {
 	const caption = document.createElement( ImageCaptionPlugin.caption_tag );
 	caption.addClass( ImageCaptionPlugin.caption_class );
@@ -51,7 +50,7 @@ function addCaption(
 }
 
 
-function updateFigureIndices( plugin: Plugin ) {
+function updateFigureIndices() {
 	document.querySelectorAll( 'div.workspace-leaf' ).forEach(
 		( container : HTMLElement ) => {
 			let index = 1;
