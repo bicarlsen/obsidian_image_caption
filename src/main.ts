@@ -26,16 +26,21 @@ export default class ImageCaptionPlugin extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
+		this.caption_tag = 'figcaption';
+		this.caption_class = 'obsidian-image-caption';
+		this.caption_selector = `${this.caption_tag}.${this.caption_class}`;
 
-		this.caption_observer = captionObserver();
-		this.registerMarkdownPostProcessor( processImageCaption( this.caption_observer ) );
+		this.caption_observers = [];
+		this.registerMarkdownPostProcessor( processImageCaption( this ) );
 
 		this.addStylesheet();
 		this.addSettingTab( new ImageCaptionSettingTab( this.app, this ) );
 	}
 
 	onunload() {
-		this.caption_observer.disconnect();
+		this.stylesheet.remove();
+		this.clearObservers();
+		this.removeCaptions();
 	}
 
 	async loadSettings() {
@@ -46,27 +51,51 @@ export default class ImageCaptionPlugin extends Plugin {
 		await this.saveData( this.settings );
 	}
 
+	addObserver( observer: MutationObserver ) {
+		this.caption_observers.push( observer );
+	}
+
+	removeObserver( observer: MutationObserver ) {
+		observer.disconnect();
+		const index = this.caption_observers.indexOf( observer );
+		this.caption_observers.splice( index, 1 );
+	}
+
+	clearObservers() {
+		for ( const observer of this.caption_observers ) {
+			observer.disconnect();
+		}
+
+		this.caption_observers = [];
+	}
+
 	addStylesheet() {
 		this.stylesheet = document.createElement( 'style' );
+		this.stylesheet.setAttribute( 'type', 'text/css' );
 		this.updateStylesheet();
 		document.head.append( this.stylesheet );
 	}
 
 	updateStylesheet() {
-		const base = 'figcaption.obsidian-image-caption';
-		const css = this.settings.css ? `${base} { ${this.settings.css} }` : '';
+		const css = this.settings.css ? `${this.caption_selector} { ${this.settings.css} }` : '';
 
 		let label = this.settings.label;
 		if ( label ) {
-			const number_pattern = /(?<!\\)#/;
+			const number_pattern = /(?<!\\)#/g;
 			label = label.replace( number_pattern, "' attr(data-image-caption-index) '" );  // inner quotes used to kill string and insert attr. + between strings breaks it.
 			label = label.replace( '\\#', '#' );
-			label = label ? `${base}::before { content: '${label} ' }` : '';  // additional space intentional
+			label = `${this.caption_selector}::before { content: '${label} ' }`;  // additional space in content intentional
 		}
 
 		this.stylesheet.innerText = `${css} ${label}`;
 	}
-}
+
+	removeCaptions() {
+		for ( const caption of document.querySelectorAll( this.caption_selector ) ) {
+			caption.remove();
+		}
+	}
+}  // end ImageCaptionPlugin
 
 
 class ImageCaptionSettingTab extends PluginSettingTab {

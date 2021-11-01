@@ -13,7 +13,6 @@ e.g.
 ![[my_amazing_image.png|Check out this amazing picture.]]
 ```
 
-
 ## Settings
 
 + **Label:** Text that prepends all captions.<br/>
@@ -21,6 +20,10 @@ For automatic numbering use '#'. If a '#' character is meant to be output, escap
 
 + **CSS:** Apply custom CSS styling to the image captions.<br/>
 Captions are indexed from 1 using the 'data-image-caption-index' attribute for styling based on figure number.
+
+## FAQ
+
++ **My captions aren't showing up:** Captions are only added if the image is rerendered. Try changing the caption (needs to be more than a trialing space) and trying again. If this fixes the issue then change it back, otherwise open an Issue.
 
 
 ## Known issues
