@@ -16,7 +16,7 @@ export function captionObserver( plugin: Plugin ) {
 				continue;
 			}
 
-			const caption_text = mutation.target.getAttribute( 'alt' );
+			let caption_text = mutation.target.getAttribute( 'alt' );
 			if ( caption_text === mutation.target.getAttribute( 'src' ) ) {
 				// default caption, skip
 				continue;
@@ -27,7 +27,10 @@ export function captionObserver( plugin: Plugin ) {
 				continue;
 			}
 
-			addCaption( mutation.target, caption_text );
+			caption_text = parseCaptionText( caption_text, plugin.settings.delimeter );
+			if ( caption_text !== null ) {
+				addCaption( mutation.target, caption_text );
+			}
 		}  // end for..of
 
 		updateFigureIndices();
@@ -36,6 +39,38 @@ export function captionObserver( plugin: Plugin ) {
 	} );
 }
 
+function parseCaptionText( text: string, delimeter: string[] ): string | null {
+	if ( delimeter.length === 0 ) {
+		return text;
+	}
+	
+	let start, end;
+	if ( delimeter.length == 1 ) {
+		// single delimeter character
+		delimeter = delimeter[ 0 ];
+		start = text.indexOf( delimeter );
+		end = text.lastIndexOf( delimeter );
+	}
+	else if ( delimeter.length === 2 ) {
+		// separate start and end delimeter
+		start = text.indexOf( delimeter[ 0 ] );
+		end = text.lastIndexOf( delimeter[ 1 ] );
+	}
+	else {
+		// error
+		return null;
+	}
+
+	if ( start === -1 || end === -1 ) {
+		return null;
+	}
+	if ( start === end ) {
+		return '';
+	}
+
+	const start_offset = delimeter[ 0 ].length; // exclude starting delimeter
+	return text.slice( start + start_offset, end );
+} 
 
 function addCaption(
 	target: HTMLElement,
