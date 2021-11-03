@@ -33,7 +33,7 @@ A delimeter is a set of characters that identify the caption text to use.
 
 ## FAQ
 
-+ **My captions aren't showing up:** Captions are only added if the image is rerendered. Try changing the caption (needs to be more than a trialing space) and trying again. If this fixes the issue then change it back, otherwise open an Issue.
++ **My captions aren't showing up:** Captions are only added if the image is rerendered. Try changing the caption (needs to be more than a trailing space) and trying again. If this fixes the issue then change it back, otherwise open an Issue.
 
 
 ## Known issues
