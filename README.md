@@ -23,13 +23,13 @@ Captions are indexed from 1 using the 'data-image-caption-index' attribute for s
 
 + **Delimeter:** Indicates the caption text.<br/>
 A delimeter is a set of characters that identify the caption text to use.
- + If blank, the entire text is used.
- + A single delimeter can be used.<br/>
+	+ If blank, the entire text is used.
+	+ A single delimeter can be used.<br/>
     e.g. `"` -> `"My caption"` or `!!` -> `!!My caption!!`
- + A start and end delimter can be used by separating them with a comma (,).<br/>
+	+ A start and end delimter can be used by separating them with a comma (,).<br/>
     e.g. `{, }` -> `{My caption}` or `<<, >>` -> `<<My caption>>`
- + **Note:** Whitespace is trimmed from the delimeter character sets.
- + **Note:** Only the first and last delimeters are matched, so the delimeter character can be used in the caption without special consideration, such as escaping.
+	+ **Note:** Whitespace is trimmed from the delimeter character sets.
+	+ **Note:** Only the first and last delimeters are matched, so the delimeter character can be used in the caption without special consideration, such as escaping.
 
 ## FAQ
 
