@@ -8,7 +8,7 @@ import {
 import ImageCaptionPlugin from './main';
 
 
-export function captionObserver( plugin: Plugin ) {
+export function captionObserver( plugin: Plugin, ctx: MarkdownPostProcessorContext ) {
 
 	return new MutationObserver( ( mutations, observer ) => {
 		for ( const mutation of mutations ) {
@@ -29,7 +29,8 @@ export function captionObserver( plugin: Plugin ) {
 
 			caption_text = parseCaptionText( caption_text, plugin.settings.delimeter );
 			if ( caption_text !== null ) {
-				addCaption( mutation.target, caption_text );
+				const caption = addCaption( mutation.target, caption_text );
+				ctx.addChild( caption );
 			}
 		}  // end for..of
 
@@ -38,6 +39,7 @@ export function captionObserver( plugin: Plugin ) {
 
 	} );
 }
+
 
 function parseCaptionText( text: string, delimeter: string[] ): string | null {
 	if ( delimeter.length === 0 ) {
@@ -72,16 +74,17 @@ function parseCaptionText( text: string, delimeter: string[] ): string | null {
 	return text.slice( start + start_offset, end );
 } 
 
+
 function addCaption(
 	target: HTMLElement,
 	caption_text: string
-): HTMLElement {
+): MarkdownRenderChild {
 	const caption = document.createElement( ImageCaptionPlugin.caption_tag );
 	caption.addClass( ImageCaptionPlugin.caption_class );
 	caption.innerText = caption_text;
 	target.appendChild( caption );
 
-	return caption;
+	return new MarkdownRenderChild( caption );
 }
 
 
@@ -112,7 +115,7 @@ export function processImageCaption(
 			( container: HTMLElement ) => {
 				// must listen for class changes because images
 				// may be loaded after this run
-				const observer = captionObserver( plugin );
+				const observer = captionObserver( plugin, ctx );
 				observer.observe(
 					container,
 					{ attributes: true, attributesFilter: [ 'class' ] }

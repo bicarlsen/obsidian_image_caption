@@ -23,6 +23,7 @@ const DEFAULT_SETTINGS: ImageCaptionSettings = {
 	delimeter: []
 }
 
+
 export default class ImageCaptionPlugin extends Plugin {
 	settings: ImageCaptionSettings;
 
@@ -85,9 +86,13 @@ export default class ImageCaptionPlugin extends Plugin {
 
 		let label = this.settings.label;
 		if ( label ) {
-			const number_pattern = /(?<!\\)#/g;
-			label = label.replace( number_pattern, "' attr(data-image-caption-index) '" );  // inner quotes used to kill string and insert attr. + between strings breaks it.
+			// replace all unescaped hashtags with image index
+			const number_pattern = /(^|[^\\])#/g;
+			label = label.replace( number_pattern, "$1' attr(data-image-caption-index) '" );  // inner quotes used to kill string and insert attr. + between strings breaks it.
+			
+			// Replace escaped hashtags with hashtags
 			label = label.replace( '\\#', '#' );
+
 			label = `${ImageCaptionPlugin.caption_selector}::before { content: '${label} ' }`;  // additional space in content intentional
 		}
 
