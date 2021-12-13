@@ -6,8 +6,8 @@ import {
 } from 'obsidian';
 
 import {
-	captionObserver,
-	processImageCaption
+	processInternalImageCaption,
+	processExternalImageCaption
 } from './md_processor';
 
 
@@ -36,7 +36,8 @@ export default class ImageCaptionPlugin extends Plugin {
 		await this.loadSettings();
 
 		this.caption_observers = [];
-		this.registerMarkdownPostProcessor( processImageCaption( this ) );
+		this.registerMarkdownPostProcessor( processInternalImageCaption( this ) );
+		this.registerMarkdownPostProcessor( processExternalImageCaption( this ) );
 
 		this.addStylesheet();
 		this.addSettingTab( new ImageCaptionSettingTab( this.app, this ) );
