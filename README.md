@@ -7,13 +7,16 @@
 ## Use
 
 **Internal embeds**
+
 Use the pipe (|) after the the source of an embeded image to display the text as a caption of the figure.
 
 e.g.
 ```markdown
 ![[my_amazing_image.png|Check out this amazing picture.]]
 ```
+
 **External embeds**
+
 Use alt text to display as a caption.
 
 e.g.
