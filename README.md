@@ -6,11 +6,19 @@
 
 ## Use
 
+**Internal embeds**
 Use the pipe (|) after the the source of an embeded image to display the text as a caption of the figure.
 
 e.g.
 ```markdown
 ![[my_amazing_image.png|Check out this amazing picture.]]
+```
+**External embeds**
+Use alt text to display as a caption.
+
+e.g.
+```markdown
+![Another beautiful picture.](https://prettypicture.com/image01.png)
 ```
 
 ## Settings
@@ -38,4 +46,5 @@ A delimeter is a set of characters that identify the caption text to use. The de
 
 ## Known issues
 
-+ Only works on internally linked images, not externally linked ones.
++ Externally linked image captions do not update when changing between Preview and Edit mode. 
+	+ This appears to be an issue with Obsidian and has been raised as a (bug report)[https://forum.obsidian.md/t/alt-text-of-external-embed-des-not-update/28548].
