@@ -49,5 +49,4 @@ A delimeter is a set of characters that identify the caption text to use. The de
 
 ## Known issues
 
-+ Externally linked image captions do not update when changing between Preview and Edit mode. 
-	+ This appears to be an issue with Obsidian and has been raised as a [bug report](https://forum.obsidian.md/t/alt-text-of-external-embed-des-not-update/28548).
+(none at the moment)
