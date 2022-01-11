@@ -2,7 +2,7 @@
 
 ### Add captions to your images.
 
-![Obsidian Image Caption example](./example.png)
+![Obsidian Image Caption example](https://raw.githubusercontent.com/bicarlsen/obsidian_image_caption/main/example.png)
 
 ## Use
 
