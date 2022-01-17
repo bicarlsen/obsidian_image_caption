@@ -11,6 +11,7 @@
 Use the pipe (|) after the the source of an embeded image to display the text as a caption of the figure.
 
 e.g.
+
 ```markdown
 ![[my_amazing_image.png|Check out this amazing picture.]]
 ```
@@ -19,9 +20,36 @@ e.g.
 
 Use alt text to display as a caption.
 
+Allows resizing of images, exactly how internal embeds work. (See below)
+
 e.g.
+
 ```markdown
 ![Another beautiful picture.](https://prettypicture.com/image01.png)
+```
+
+
+**Resizing**
+When resizing internally embedded images one can normally use the `<width>x<height>` after the pipe (`|`) character.
+
+e.g.
+
+```markdown
+![[my_amazing_image.png|50x50]]
+```
+
+You can now resize both internally and externally embeded images with caption. However, delimeters must be used to distinguis the caption text if it is present.
+
+e.g. If `"` is the caption delimeter.
+
+```markdown
+![[my_amazing_image.png|50x50]]
+
+![[my_amazing_image.png|50x50 "Look at my caption ma!"]]
+
+!["I can caption anything!" 100x150](https://prettypicture.com/image01.png)
+
+![100x150](https://prettypicture.com/image01.png)
 ```
 
 ## Settings
