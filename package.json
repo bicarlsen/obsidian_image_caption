@@ -1,6 +1,6 @@
 {
     "name": "obsidian-image-caption",
-    "version": "0.0.10",
+    "version": "0.0.11",
     "description": "Add captions to images in Obsidian.",
     "main": "main.js",
     "scripts": {

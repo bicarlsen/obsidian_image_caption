@@ -115,7 +115,7 @@ function parseCaptionText( text: string, delimeter: string[] ): string | null {
 		end_delim = '';
 
 		start = 0;
-		end = text.length - 1;
+		end = text.length;
 	}
 	else if ( delimeter.length == 1 ) {
 		// single delimeter character
@@ -182,6 +182,10 @@ function parseCaptionText( text: string, delimeter: string[] ): string | null {
  * 		or undefined if not found.
  */
 function parseSize( text: string ) {
+	if ( ! text ) {
+		return undefined;
+	}
+
 	const size_pattern = /(\d+)x(\d+)/i;
 	const match = text.match( size_pattern );
 	if ( ! match ) {
