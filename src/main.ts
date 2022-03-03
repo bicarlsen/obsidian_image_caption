@@ -120,6 +120,7 @@ class ImageCaptionSettingTab extends PluginSettingTab {
 		let { containerEl } = this;
 		containerEl.empty();
 
+		// label
 		new Setting( containerEl )
 			.setName( 'Label' )
 			.setDesc( 'Prepend this text before each caption.' )
@@ -133,6 +134,7 @@ class ImageCaptionSettingTab extends PluginSettingTab {
 				} )
 			);
 
+		// css
 		new Setting( containerEl )
 			.setName( 'CSS' )
 			.setDesc( 'Custom CSS styling for captions.' )
@@ -190,5 +192,18 @@ class ImageCaptionSettingTab extends PluginSettingTab {
 				await this.plugin.saveSettings();
 			} )
 		);
-	}
+
+		// parse html
+		new Setting( containerEl )
+			.setName( 'Caption as HTML' )
+			.setDesc( 'Insert caption text as HTML.' )
+			.addToggle( ( toggle ) => toggle
+				.setValue( this.plugin.settings.htmlCaption )
+				.onChange( async ( value ) => {
+					this.plugin.settings.htmlCaption = value;
+					await this.plugin.saveSettings();
+				} )
+			);
+
+	}  // end #display
 }

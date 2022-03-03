@@ -49,7 +49,11 @@ export function internalCaptionObserver(
 			caption_text = parsed.text;
 
 			if ( caption_text ) {
-				const caption = addCaption( mutation.target, caption_text );
+				const caption = addCaption(
+					mutation.target,
+					caption_text,
+					plugin.settings.htmlCaption
+				);
 				ctx.addChild( caption );
 			}
 
@@ -204,15 +208,23 @@ function parseSize( text: string ) {
  * 
  * @param {HTMLElement} target - Parent element for the caption.
  * @param {string} caption_text - Text to add for the caption.
+ * @param {boolean} [asHtml=false] - Insert caption text as HTML rather than text.
  * @returns {MarkdownRenderChild} - Caption element that was added to the target as the caption.
  */
 function addCaption(
 	target: HTMLElement,
-	caption_text: string
+	caption_text: string,
+	asHtml: boolean = false
 ): MarkdownRenderChild {
 	const caption = document.createElement( ImageCaptionPlugin.caption_tag );
 	caption.addClass( ImageCaptionPlugin.caption_class );
-	caption.innerText = caption_text;
+	if ( asHtml ) {
+		caption.innerHTML = caption_text;
+	}
+	else{
+		caption.innerText = caption_text;
+	}
+
 	target.appendChild( caption );
 
 	return new MarkdownRenderChild( caption );
@@ -348,7 +360,11 @@ export function processExternalImageCaption(
 
 				// add caption
 				if ( caption_text ) {
-					const caption = addCaption( container, caption_text );
+					const caption = addCaption(
+						container,
+						caption_text,
+						plugin.settings.htmlCaption
+					);
 
 					ctx.addChild( new MarkdownRenderChild( container ) );
 					ctx.addChild( caption );
