@@ -70,6 +70,9 @@ A delimeter is a set of characters that identify the caption text to use. The de
 	+ **Note:** Whitespace is trimmed from the delimeter character sets.
 	+ **Note:** Only the first and last delimeters are matched, so the delimeter character can be used in the caption without special consideration, such as escaping.
 
++ **Caption as HTML:** Allows your captions to be rendered as HTML.<br/>
+By turning this option on your captions will be inserted into the document as HTML, rather than text.
+
 ## FAQ
 
 + **My captions aren't showing up:** Captions are only added if the image is rerendered. Try changing the caption (needs to be more than a trailing space) and trying again. If this fixes the issue then change it back, otherwise open an Issue.
