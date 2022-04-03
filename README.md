@@ -30,6 +30,7 @@ e.g.
 
 
 **Resizing**
+
 When resizing internally embedded images one can normally use the `<width>x<height>` after the pipe (`|`) character. Use the keyword `auto` as `<width>` or `height` to set the size of one dimension and auto-scale the other.
 
 e.g.
