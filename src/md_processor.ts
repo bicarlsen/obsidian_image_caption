@@ -190,7 +190,7 @@ function parseSize( text: string ) {
 		return undefined;
 	}
 
-	const size_pattern = /(\d+)x(\d+)/i;
+	const size_pattern = /(\d+|auto)x(\d+|auto)/i;
 	const match = text.match( size_pattern );
 	if ( ! match ) {
 		return undefined;

@@ -30,12 +30,13 @@ e.g.
 
 
 **Resizing**
-When resizing internally embedded images one can normally use the `<width>x<height>` after the pipe (`|`) character.
+When resizing internally embedded images one can normally use the `<width>x<height>` after the pipe (`|`) character. Use the keyword `auto` as `<width>` or `height` to set the size of one dimension and auto-scale the other.
 
 e.g.
 
 ```markdown
 ![[my_amazing_image.png|50x50]]
+![[my_long_photo|autox200]]
 ```
 
 You can now resize both internally and externally embeded images with caption. However, delimeters must be used to distinguis the caption text if it is present.
@@ -71,7 +72,7 @@ A delimeter is a set of characters that identify the caption text to use. The de
 	+ **Note:** Only the first and last delimeters are matched, so the delimeter character can be used in the caption without special consideration, such as escaping.
 
 + **Caption as HTML:** Allows your captions to be rendered as HTML.<br/>
-By turning this option on your captions will be inserted into the document as HTML, rather than text.
+By turning this option on your captions will be inserted into the document as HTML rather than text.
 
 ## FAQ
 
