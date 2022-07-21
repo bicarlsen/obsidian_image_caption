@@ -1,5 +1,6 @@
 import {
 	App,
+	MarkdownView,
 	Plugin,
 	PluginSettingTab,
 	Setting
@@ -7,34 +8,44 @@ import {
 
 import {
 	processInternalImageCaption,
-	processExternalImageCaption
+	processExternalImageCaption,
 } from './md_processor';
 
+import { processPreviewImageCaption } from './preview_processor';
 
 interface ImageCaptionSettings {
 	css: string;
 	label: string;
 	delimeter: string[];
+    htmlCaption: boolean;
 }
 
 const DEFAULT_SETTINGS: ImageCaptionSettings = {
 	css: '',
 	label: '',
-	delimeter: []
+	delimeter: [],
+    htmlCaption: false,
 }
 
 
 export default class ImageCaptionPlugin extends Plugin {
 	settings: ImageCaptionSettings;
+    caption_observers: MutationObserver[];
+    stylesheet: HTMLElement; 
 
 	static caption_tag: string = 'figcaption';
 	static caption_class: string = 'obsidian-image-caption';
 	static caption_selector: string = `${ImageCaptionPlugin.caption_tag}.${ImageCaptionPlugin.caption_class}`;
-
+    
 
 	async onload() {
 		await this.loadSettings();
 
+        // register processors for preview mode
+        const previewProcessor = processPreviewImageCaption( this );
+        this.registerEditorExtension( previewProcessor );
+
+        // register processors for read mode
 		this.caption_observers = [];
 		this.registerMarkdownPostProcessor( processInternalImageCaption( this ) );
 		this.registerMarkdownPostProcessor( processExternalImageCaption( this ) );
@@ -44,7 +55,10 @@ export default class ImageCaptionPlugin extends Plugin {
 	}
 
 	onunload() {
-		this.stylesheet.remove();
+		if ( this.stylesheet ) {
+            this.stylesheet.remove();
+        }
+
 		this.clearObservers();
 		this.removeCaptions();
 	}
@@ -101,9 +115,10 @@ export default class ImageCaptionPlugin extends Plugin {
 	}
 
 	removeCaptions() {
-		for ( const caption of document.querySelectorAll( ImageCaptionPlugin.caption_selector ) ) {
+        const captions: NodeList = document.querySelectorAll( ImageCaptionPlugin.caption_selector )
+		captions.forEach( ( caption: HTMLElement ) => {
 			caption.remove();
-		}
+		} );
 	}
 }  // end ImageCaptionPlugin
 

@@ -1,70 +1,73 @@
 import {
-	Plugin,
-	MarkdownPostProcessor,
 	MarkdownPostProcessorContext,
 	MarkdownRenderChild
 } from 'obsidian';
 
 import ImageCaptionPlugin from './main';
-
-
-interface ImageSize {
-	width: number;
-	height: number
-}
-
+import {
+    parseCaptionText,
+    addCaption,
+    setSize,
+    updateFigureIndices,
+} from './common';
 
 /**
  * Registers a Mutation Observer on an image to add a caption.
  * The observer is unregistered after the caption has been added.
  * Meant to be used for internal embeds.
  *  
- * @param plugin {Plugin}
+ * @param plugin {ImageCaptionPlugin}
  * @param ctx {MarkdownPostProcessorContext}
  * @returns {MutationObserver}
  */
 export function internalCaptionObserver(
-	plugin: Plugin,
+	plugin: ImageCaptionPlugin,
 	ctx: MarkdownPostProcessorContext
-) {
-	return new MutationObserver( ( mutations, observer ) => {
+): MutationObserver {
+	return new MutationObserver( ( mutations: MutationRecord[], observer: MutationObserver ) => {
 		for ( const mutation of mutations ) {
-			if ( !mutation.target.matches( 'span.image-embed' ) ) {
+            const target = mutation.target as HTMLElement;
+			if ( !target.matches( 'span.image-embed' ) ) {
 				continue;
 			}
 
-			let caption_text = mutation.target.getAttribute( 'alt' );
-			if ( caption_text === mutation.target.getAttribute( 'src' ) ) {
+			let caption_text = target.getAttribute( 'alt' );
+			if ( caption_text === target.getAttribute( 'src' ) ) {
 				// default caption, skip
 				continue;
 			}
 
-			if ( mutation.target.querySelector( ImageCaptionPlugin.caption_selector ) ) {
+			if ( target.querySelector( ImageCaptionPlugin.caption_selector ) ) {
 				// caption already added
 				continue;
 			}
 
-			const parsed = parseCaptionText( caption_text, plugin.settings.delimeter );
+            if ( ! caption_text ) {
+                continue;
+            }
+			
+            const parsed = parseCaptionText( caption_text, plugin.settings.delimeter );
 			const size = parsed.size;
 			caption_text = parsed.text;
 
 			if ( caption_text ) {
 				const caption = addCaption(
-					mutation.target,
+					target,
 					caption_text,
 					plugin.settings.htmlCaption
 				);
 				ctx.addChild( caption );
+
+                target.addClass( 'with_image_caption' );
 			}
 
 			if ( size ) {
-				setSize( mutation.target, size );
+				setSize( target, size );
 			}
 		}  // end for..of
 
 		updateFigureIndices();
 		plugin.removeObserver( observer );
-
 	} );
 }
 
@@ -74,12 +77,12 @@ export function internalCaptionObserver(
  * The observer is unregistered after the caption has been added.
  * Meant to be used for external embeds.
  *  
- * @param plugin {Plugin}
+ * @param plugin {ImageCaptionPlugin}
  * @returns {MutationObserver}
  */
 export function externalCaptionObserver(
-	plugin: Plugin
-) {
+	plugin: ImageCaptionPlugin
+): MutationObserver {
 	return new MutationObserver( ( mutations, observer ) => {
 		let update = false;
 		for ( const mutation of mutations ) {
@@ -104,180 +107,14 @@ export function externalCaptionObserver(
 
 
 /**
- * Parses text to extract the caption and size for the image.
- * 
- * @param text {string} Text to parse.
- * @param delimeter {string[]} Delimeter(s) used to indeicate caption text.
- * @returns { { caption: string, size?: ImageSize } }
- * 		An obect containing the caption text and size.
- */
-function parseCaptionText( text: string, delimeter: string[] ): string | null {
-	let start, end;
-	let start_delim, end_delim;
-	if ( delimeter.length === 0 ) {
-		start_delim = '';
-		end_delim = '';
-
-		start = 0;
-		end = text.length;
-	}
-	else if ( delimeter.length == 1 ) {
-		// single delimeter character
-		start_delim = delimeter[ 0 ];
-		end_delim = delimeter[ 0 ];
-
-		start = text.indexOf( start_delim );
-		end = text.lastIndexOf( end_delim );
-	}
-	else if ( delimeter.length === 2 ) {
-		// separate start and end delimeter
-		start_delim = delimeter[ 0 ];
-		end_delim = delimeter[ 1 ];
-
-		start = text.indexOf( start_delim );
-		end = text.lastIndexOf( end_delim );
-	}
-	else {
-		// error
-		return {
-			text: undefined,
-			size: undefined
-		};
-	}
-
-	// caption text
-	let caption, remaining_text;
-	if (
-		start === -1 ||
-		end === -1 ||
-		start === end 
-	) {
-		caption = undefined;
-		remaining_text = [ text ];
-	}
-	else {
-		// exclude delimeters
-		const start_offset = start_delim.length;
-		const end_offset = end_delim.length
-
-		caption = text.slice( start + start_offset, end );
-		remaining_text = [
-			text.slice( 0, start ),
-			text.slice( end + end_offset )
-		];
-	}
-
-	// size
-	let size = parseSize( remaining_text[ 0 ] );
-	if ( ! size ) {
-		size = parseSize( remaining_text[ 1 ] );
-	}
-
-	return { text: caption, size };
-} 
-
-
-/**
- * Searches for a size parameter of the form
- * <width>x<height> returning the parameters if found.
- * 
- * @param {string} text - Text to parse.
- * @returns {ImageSize|undefined} - Object representing the image size,
- * 		or undefined if not found.
- */
-function parseSize( text: string ) {
-	if ( ! text ) {
-		return undefined;
-	}
-
-	const size_pattern = /(\d+|auto)x(\d+|auto)/i;
-	const match = text.match( size_pattern );
-	if ( ! match ) {
-		return undefined;
-	}
-
-	return {
-		width: match[ 1 ],
-		height: match[ 2 ]
-	};
-}
-
-
-/**
- * Adds a caption to an image.
- * 
- * @param {HTMLElement} target - Parent element for the caption.
- * @param {string} caption_text - Text to add for the caption.
- * @param {boolean} [asHtml=false] - Insert caption text as HTML rather than text.
- * @returns {MarkdownRenderChild} - Caption element that was added to the target as the caption.
- */
-function addCaption(
-	target: HTMLElement,
-	caption_text: string,
-	asHtml: boolean = false
-): MarkdownRenderChild {
-	const caption = document.createElement( ImageCaptionPlugin.caption_tag );
-	caption.addClass( ImageCaptionPlugin.caption_class );
-	if ( asHtml ) {
-		caption.innerHTML = caption_text;
-	}
-	else{
-		caption.innerText = caption_text;
-	}
-
-	target.appendChild( caption );
-
-	return new MarkdownRenderChild( caption );
-}
-
-
-/**
- * Sets the width and height for an image.
- * 
- * @param {HTMLElement} target - Parent element of the image.
- * @param {ImageSize} size - Width and height values.
- */
-function setSize(
-	target: HTMLElement,
-	size: ImageSize
-) {
-	const { width, height } = size;
-	const img = target.querySelector( 'img' );
-
-	target.setAttribute( 'width', width );
-	target.setAttribute( 'height', height );
-	img.setAttribute( 'width', width );
-	img.setAttribute( 'height', height );
-}
-
-
-/**
- * Updates index data for images.
- */
-function updateFigureIndices() {
-	document.querySelectorAll( 'div.workspace-leaf' ).forEach(
-		( workspace: HTMLElement ) => {
-			let index = 1;
-			workspace.querySelectorAll( ImageCaptionPlugin.caption_selector ).forEach(
-				( el: HTMLElement ) => {
-					el.dataset.imageCaptionIndex = index;
-					index += 1;
-				}
-			);
-		}
-	);
-}
-
-
-/**
  * Registers MutationObservers on internal images.
  * 
- * @param {Plugin} plugin
+ * @param {ImageCaptionPlugin} plugin
  * @returns {(HTMLElement, MarkdownPostProcessorContext) => void}
  * 		Function that registers internal images to have a caption added to them.
  */
 export function processInternalImageCaption(
-	plugin: Plugin
+	plugin: ImageCaptionPlugin
 ): ( el: HTMLElement, ctx: MarkdownPostProcessorContext ) => void {
 
 	return function (
@@ -291,7 +128,7 @@ export function processInternalImageCaption(
 				const observer = internalCaptionObserver( plugin, ctx );
 				observer.observe(
 					container,
-					{ attributes: true, attributesFilter: [ 'class' ] }
+					{ attributes: true, attributeFilter: [ 'class' ] }
 				);
 
 				plugin.addObserver( observer );
@@ -304,12 +141,12 @@ export function processInternalImageCaption(
 /**
  * Adds caption to external images.
  * 
- * @param {Plugin} plugin
+ * @param {ImageCaptionPlugin} plugin
  * @returns {(HTMLElement, MarkdownPostProcessorContext) => void}
  * 		Function that registers external images to have a caption added to them.
  */
 export function processExternalImageCaption(
-	plugin: Plugin
+	plugin: ImageCaptionPlugin
 ): ( el: HTMLElement, ctx: MarkdownPostProcessorContext ) => void {
 
 	return function (
@@ -318,18 +155,27 @@ export function processExternalImageCaption(
 	): void {
 		const container_css_class = 'obsidian-image-caption-external-embed';
 
-		elms = [ ...el.querySelectorAll( 'img' ) ];
-		elms.filter( ( elm: HTMLElement ) => {
-			// filter out internal images
-			return ! elm.closest( 'span.internal-embed' );
-		} ).forEach(
-			( img: HTMLElement ) => {
+		const elms = el.querySelectorAll( 'img' );
+		elms.forEach(
+			( elm: HTMLElement ) => {
+				if( elm.closest( 'span.internal-embed' ) ) {
+					// filter out internal images
+					return;
+				}
+
+				const img = elm;
 				if ( img.closest( `.${container_css_class}` ) ) {
 					// caption already added
 					return;
 				}
 
+				// @todo: External images no longer have alt text.
+				// 		Need to find another way to add caption.
 				let caption_text = img.getAttribute( 'alt' );
+                if ( ! caption_text ) {
+                    return;
+                }
+
 				const parsed = parseCaptionText(
 					caption_text,
 					plugin.settings.delimeter
@@ -346,7 +192,7 @@ export function processExternalImageCaption(
 				container.addClass( container_css_class );
 
 				// observe container for caption to be added
-				const observer = externalCaptionObserver( plugin, ctx );
+				const observer = externalCaptionObserver( plugin );
 				observer.observe(
 					container,
 					{ childList: true }

@@ -1,3 +1,11 @@
+/* Allow inline images to remain inline
+ * while captions remain beneath.
+ */
+span.with_image_caption {
+    display: inline-block;
+}
+
+/* Settings styling */
 .setting-item-control.setting-error input {
 	border-color: #990000;
 }
