@@ -1,5 +1,7 @@
 # Obsidian Image Caption
 
+**This is currently an intermediate release with knowng issues.**
+
 ### Add captions to your images.
 
 ![Obsidian Image Caption example](https://raw.githubusercontent.com/bicarlsen/obsidian_image_caption/main/example.png)
