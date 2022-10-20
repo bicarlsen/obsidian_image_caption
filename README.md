@@ -40,7 +40,7 @@ e.g.
 ![[my_long_photo|autox200]]
 ```
 
-You can now resize both internally and externally embeded images with caption. However, delimeters must be used to distinguis the caption text if it is present.
+You can now resize both internally and externally embeded images with caption. However, delimeters must be used to distinguish the caption text if it is present.
 
 e.g. If `"` is the caption delimeter.
 
@@ -82,4 +82,5 @@ By turning this option on your captions will be inserted into the document as HT
 
 ## Known issues
 
-(none at the moment)
++ Some captions missing.
++ Not compatible with Pandocs for exporting.

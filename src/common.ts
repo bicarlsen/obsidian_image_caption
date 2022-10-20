@@ -5,12 +5,49 @@ import {
 import ImageCaptionPlugin from './main';
 
 
-interface ImageSize {
+// *************
+// *** types ***
+// *************
+
+export interface ImageSize {
 	width: number;
 	height: number;
 }
 
 
+export interface ParsedCaption {
+	text?: string;
+	size?: ImageSize;
+}
+
+
+// *****************
+// *** functions ***
+// *****************
+
+
+/**
+ * Get the nearest sibling matching the selector.
+ * 
+ * @param {Element} elm - Element to start searching from.
+ * @param {string} selector - Selector string.
+ * @param {number} direction - Direction to search.
+ * 		Negative to search previous, otherwise searches next.
+ * @returns {Element} First element matching selector in the given direction.
+ */
+export function closestSibling(
+	elm: Element,
+	selector: string,
+	direction?: number
+): Element {
+	const prev = (direction < 0);
+	let sibling =  prev ? elm.previousElementSibling : elm.nextElementSibling;
+	while ( sibling && ! sibling.matches(selector) ) {
+		sibling = prev ? sibling.previousElementSibling : sibling.nextElementSibling;
+	}
+
+	return sibling;
+}
 
 /**
  * Parses text to extract the caption and size for the image.
@@ -20,7 +57,7 @@ interface ImageSize {
  * @returns { { caption: string, size?: ImageSize } }
  * 		An obect containing the caption text and size.
  */
-export function parseCaptionText( text: string, delimeter: string[] ): {text: string, size?: ImageSize} | null {
+export function parseCaptionText( text: string, delimeter: string[] ): ParsedCaption | null {
     if ( ! text ) {
         return null;
     }
@@ -82,7 +119,7 @@ export function parseCaptionText( text: string, delimeter: string[] ): {text: st
 
 	// size
 	let size = parseSize( remaining_text[ 0 ] );
-	if ( ! size ) {
+	if ( ! size && remaining_text[ 1 ] ) {
 		size = parseSize( remaining_text[ 1 ] );
 	}
 
@@ -138,6 +175,13 @@ export function addCaption(
 	}
 
 	target.appendChild( caption );
+
+	const style = getComputedStyle(target);
+	if ( style.getPropertyValue('display') == 'inline' ) {
+		target.style.display = 'inline-block';
+	}
+
+	target.addClass('image-caption-captioned');
 
 	return new MarkdownRenderChild( caption );
 }

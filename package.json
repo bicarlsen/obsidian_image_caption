@@ -1,6 +1,6 @@
 {
     "name": "obsidian-image-caption",
-    "version": "0.0.14",
+    "version": "0.0.15.alpha",
     "description": "Add captions to images in Obsidian.",
     "main": "main.js",
     "scripts": {
@@ -10,13 +10,18 @@
     "keywords": [],
     "author": "",
     "license": "MIT",
-    "devDependencies": {
+    "dependencies": {
+        "@codemirror/language": "6.0",
+        "@codemirror/view": "6.0",
         "@types/node": "^18.0",
         "esbuild": "0.14",
-        "tslib": "2.4",
-        "typescript": "4.7",
         "obsidian": "^0.15",
-        "@codemirror/view": "6.0",
-        "@codemirror/language": "6.0"
+        "tslib": "2.4",
+        "typescript": "4.7"
+    },
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^5.36.1",
+        "@typescript-eslint/parser": "^5.36.1",
+        "eslint": "^8.23.0"
     }
 }

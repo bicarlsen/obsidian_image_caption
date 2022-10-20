@@ -8,7 +8,7 @@ import {
     parseCaptionText,
     addCaption,
     setSize,
-    updateFigureIndices,
+    updateFigureIndices
 } from './common';
 
 /**
@@ -88,7 +88,7 @@ export function externalCaptionObserver(
 		for ( const mutation of mutations ) {
 			const captions = [ ...mutation.addedNodes ].filter(
 				( elm: HTMLElement ) => {
-					return elm.matches( ImageCaptionPlugin.caption_selector )
+					return elm.matches(ImageCaptionPlugin.caption_selector);
 				}
 			);
 
@@ -98,9 +98,9 @@ export function externalCaptionObserver(
 			}
 		}
 
-		if ( update ) {
+		if (update) {
 			updateFigureIndices();
-			plugin.removeObserver( observer );
+			plugin.removeObserver(observer);
 		}
 	} );
 }
@@ -121,7 +121,8 @@ export function processInternalImageCaption(
 		el: HTMLElement,
 		ctx: MarkdownPostProcessorContext
 	): void {
-		el.querySelectorAll( 'span.internal-embed' ).forEach(
+		console.log(el)
+		el.querySelectorAll( 'span.internal-embed.image-embed' ).forEach(
 			( container: HTMLElement ) => {
 				// must listen for class changes because images
 				// may be loaded after this run
@@ -164,7 +165,7 @@ export function processExternalImageCaption(
 				}
 
 				const img = elm;
-				if ( img.closest( `.${container_css_class}` ) ) {
+				if (img.closest(`.${container_css_class}`)) {
 					// caption already added
 					return;
 				}

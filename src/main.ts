@@ -12,6 +12,7 @@ import {
 } from './md_processor';
 
 import { processPreviewImageCaption } from './preview_processor';
+import { viewObserver } from './view_observer';
 
 interface ImageCaptionSettings {
 	css: string;
@@ -42,13 +43,16 @@ export default class ImageCaptionPlugin extends Plugin {
 		await this.loadSettings();
 
         // register processors for preview mode
-        const previewProcessor = processPreviewImageCaption( this );
-        this.registerEditorExtension( previewProcessor );
+        // const previewProcessor = processPreviewImageCaption( this );
+        // this.registerEditorExtension( previewProcessor );
+		
+        const viewObs = viewObserver(this);
+		this.registerEditorExtension(viewObs);
 
         // register processors for read mode
 		this.caption_observers = [];
-		this.registerMarkdownPostProcessor( processInternalImageCaption( this ) );
-		this.registerMarkdownPostProcessor( processExternalImageCaption( this ) );
+		// this.registerMarkdownPostProcessor( processInternalImageCaption( this ) );
+		// this.registerMarkdownPostProcessor( processExternalImageCaption( this ) );
 
 		this.addStylesheet();
 		this.addSettingTab( new ImageCaptionSettingTab( this.app, this ) );
@@ -59,8 +63,8 @@ export default class ImageCaptionPlugin extends Plugin {
             this.stylesheet.remove();
         }
 
-		this.clearObservers();
-		this.removeCaptions();
+		// this.clearObservers();
+		// this.removeCaptions();
 	}
 
 	async loadSettings() {
@@ -90,10 +94,10 @@ export default class ImageCaptionPlugin extends Plugin {
 	}
 
 	addStylesheet() {
-		this.stylesheet = document.createElement( 'style' );
-		this.stylesheet.setAttribute( 'type', 'text/css' );
+		this.stylesheet = document.createElement('style');
+		this.stylesheet.setAttribute('type', 'text/css');
 		this.updateStylesheet();
-		document.head.append( this.stylesheet );
+		document.head.append(this.stylesheet);
 	}
 
 	updateStylesheet() {
@@ -103,7 +107,7 @@ export default class ImageCaptionPlugin extends Plugin {
 		if ( label ) {
 			// replace all unescaped hashtags with image index
 			const number_pattern = /(^|[^\\])#/g;
-			label = label.replace( number_pattern, "$1' attr(data-image-caption-index) '" );  // inner quotes used to kill string and insert attr. + between strings breaks it.
+			label = label.replace( number_pattern, "$1' attr(data-image-caption-fignum) '" );  // inner quotes used to kill string and insert attr. + between strings breaks it.
 			
 			// Replace escaped hashtags with hashtags
 			label = label.replace( '\\#', '#' );
