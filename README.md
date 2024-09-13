@@ -81,8 +81,9 @@ By turning this option on your captions will be inserted into the document as HT
 
 + **My captions aren't showing up:** Captions are only added if the image is rerendered. Try changing the caption (needs to be more than a trailing space) and trying again. If this fixes the issue then change it back, otherwise open an Issue.
 
++ **How does this work with Panoc?:** Pandoc has an *implicit_figures* extension which is active by default. As the [User's Guide](https://pandoc.org/MANUAL.html#extension-implicit_figures) indicates: "\[a\]n image with nonempty alt text, occurring by itself in a paragraph, will be rendered as a figure with a caption. The image’s alt text will be used as the caption." This is identical to the behavior of this plugin for external embeds, though Pandoc ignores any resizing.
 
 ## Known issues
 
 + Some captions missing.
-+ Not compatible with Pandocs for exporting.
++ Not entirely compatible with Pandoc for exporting.
